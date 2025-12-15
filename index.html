@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rapportini Cantiere - Gestione Excel</title>
+    <link rel="stylesheet" href="styles.css">
+    <!-- SheetJS per Excel -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>📋 Rapportini Cantiere</h1>
+            <p>Gestione operai, mezzi e lavorazioni con importazione da Excel</p>
+        </header>
+
+        <!-- Sezione Importazione Excel -->
+        <section id="excel-section" class="card">
+            <h2>📊 Importazione da Excel</h2>
+            
+            <div class="import-controls">
+                <div class="form-group">
+                    <label for="file-input">Seleziona file Excel:</label>
+                    <input type="file" id="file-input" accept=".xlsx, .xls">
+                </div>
+                
+                <div class="form-group">
+                    <label for="data-type">Tipo di dati:</label>
+                    <select id="data-type">
+                        <option value="">Seleziona tipo...</option>
+                        <option value="operai">Operai</option>
+                        <option value="mezzi">Mezzi</option>
+                        <option value="lavorazioni">Lavorazioni</option>
+                    </select>
+                </div>
+                
+                <button id="import-btn" class="btn btn-primary" onclick="importExcelData()">
+                    📥 Importa Dati
+                </button>
+                
+                <div id="import-status" class="status-message"></div>
+            </div>
+            
+            <!-- Template Download -->
+            <div class="template-section">
+                <h3>📋 Scarica Template Excel</h3>
+                <div class="template-buttons">
+                    <button onclick="downloadTemplate('operai')" class="btn btn-secondary">
+                        Template Operai
+                    </button>
+                    <button onclick="downloadTemplate('mezzi')" class="btn btn-secondary">
+                        Template Mezzi
+                    </button>
+                    <button onclick="downloadTemplate('lavorazioni')" class="btn btn-secondary">
+                        Template Lavorazioni
+                    </button>
+                </div>
+            </div>
+            
+            <!-- Esportazione Dati -->
+            <div class="export-section">
+                <h3>💾 Esporta Dati</h3>
+                <div class="export-buttons">
+                    <button onclick="exportData('operai')" class="btn btn-success">
+                        Esporta Operai
+                    </button>
+                    <button onclick="exportData('mezzi')" class="btn btn-success">
+                        Esporta Mezzi
+                    </button>
+                    <button onclick="exportData('lavorazioni')" class="btn btn-success">
+                        Esporta Lavorazioni
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- Sezione Dati Importati -->
+        <section id="data-display" class="card">
+            <h2>📋 Dati Importati</h2>
+            
+            <div class="tabs">
+                <button class="tab-btn active" onclick="showTab('operai')">Operai</button>
+                <button class="tab-btn" onclick="showTab('mezzi')">Mezzi</button>
+                <button class="tab-btn" onclick="showTab('lavorazioni')">Lavorazioni</button>
+            </div>
+            
+            <div id="operai-tab" class="tab-content active">
+                <table id="operai-table">
+                    <thead>
+                        <tr>
+                            <th>Codice</th>
+                            <th>Nome</th>
+                            <th>Cognome</th>
+                            <th>Qualifica</th>
+                            <th>Orario</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <!-- Dati verranno inseriti qui via JavaScript -->
+                    </tbody>
+                </table>
+            </div>
+            
+            <div id="mezzi-tab" class="tab-content">
+                <table id="mezzi-table">
+                    <thead>
+                        <tr>
+                            <th>Tipo</th>
+                            <th>Targa</th>
+                            <th>Modello</th>
+                            <th>Ore Giornaliere</th>
+                            <th>Note</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <!-- Dati verranno inseriti qui via JavaScript -->
+                    </tbody>
+                </table>
+            </div>
+            
+            <div id="lavorazioni-tab" class="tab-content">
+                <table id="lavorazioni-table">
+                    <thead>
+                        <tr>
+                            <th>Codice</th>
+                            <th>Descrizione</th>
+                            <th>Unità</th>
+                            <th>Costo Orario</th>
+                            <th>Categoria</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <!-- Dati verranno inseriti qui via JavaScript -->
+                    </tbody>
+                </table>
+            </div>
+            
+            <div id="data-stats" class="stats">
+                <p>Operai: <span id="operai-count">0</span></p>
+                <p>Mezzi: <span id="mezzi-count">0</span></p>
+                <p>Lavorazioni: <span id="lavorazioni-count">0</span></p>
+            </div>
+        </section>
+
+        <!-- Sezione Utilizzo nei Rapportini -->
+        <section id="rapportino-section" class="card">
+            <h2>📝 Crea Rapportino</h2>
+            
+            <div class="rapportino-form">
+                <div class="form-group">
+                    <label for="data-rapportino">Data:</label>
+                    <input type="date" id="data-rapportino">
+                </div>
+                
+                <div class="form-group">
+                    <label for="seleziona-operaio">Operaio:</label>
+                    <select id="seleziona-operaio">
+                        <option value="">Seleziona operaio...</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="seleziona-mezzo">Mezzo:</label>
+                    <select id="seleziona-mezzo">
+                        <option value="">Seleziona mezzo...</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="seleziona-lavorazione">Lavorazione:</label>
+                    <select id="seleziona-lavorazione">
+                        <option value="">Seleziona lavorazione...</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="ore-lavorate">Ore lavorate:</label>
+                    <input type="number" id="ore-lavorate" min="0" step="0.5" value="8">
+                </div>
+                
+                <button onclick="creaRapportino()" class="btn btn-primary">
+                    ✅ Aggiungi al Rapportino
+                </button>
+            </div>
+            
+            <div id="rapportino-list">
+                <h3>Rapportino Giornaliero</h3>
+                <table id="rapportino-table">
+                    <thead>
+                        <tr>
+                            <th>Operaio</th>
+                            <th>Mezzo</th>
+                            <th>Lavorazione</th>
+                            <th>Ore</th>
+                            <th>Azioni</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <!-- Righe verranno aggiunte qui -->
+                    </tbody>
+                </table>
+                <button onclick="esportaRapportinoExcel()" class="btn btn-success">
+                    📊 Esporta Rapportino Excel
+                </button>
+            </div>
+        </section>
+
+        <footer>
+            <p>Rapportini Cantiere v1.0 - Gestione dati da Excel</p>
+            <button onclick="clearAllData()" class="btn btn-danger">
+                🗑️ Cancella Tutti i Dati
+            </button>
+        </footer>
+    </div>
+
+    <!-- Scripts -->
+    <script src="app.js"></script>
+    <script src="excel-import.js"></script>
+</body>
+</html>
